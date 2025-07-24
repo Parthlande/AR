@@ -1,55 +1,37 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>AR Tourist View</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      padding: 2rem;
-      background-color: #f5f5f5;
-      color: #333;
-    }
-    .card {
-      background: #fff;
-      padding: 1rem;
-      border-radius: 8px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      max-width: 500px;
-      margin: auto;
-    }
-  </style>
-</head>
-<body>
-  <div class="card" id="content">
-    <h2>🔍 Loading AR Info...</h2>
-  </div>
+<html>
+  <head>
+    <title>AR View</title>
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="https://raw.githack.com/jeromeetienne/AR.js/2.2.1/aframe/build/aframe-ar.js"></script>
+  </head>
+  <body style="margin: 0; overflow: hidden">
+    <a-scene
+      vr-mode-ui="enabled: false"
+      embedded
+      arjs="sourceType: webcam; debugUIEnabled: false; gpsMinAccuracy: 100"
+    >
+      <a-camera gps-camera rotation-reader></a-camera>
 
-  <script>
-    function getQueryParam(param) {
-      const params = new URLSearchParams(window.location.search);
-      return params.get(param);
-    }
+      <script>
+        // Parse URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const lat = parseFloat(urlParams.get("lat"));
+        const lon = parseFloat(urlParams.get("lon"));
+        const name = urlParams.get("name") || "Place";
 
-    const lat = getQueryParam('lat');
-    const lon = getQueryParam('lon');
-    const name = getQueryParam('name');
-
-    const content = document.getElementById('content');
-
-    if (lat && lon && name) {
-      content.innerHTML = `
-        <h2>📍 Location Details</h2>
-        <p><strong>Place:</strong> ${decodeURIComponent(name)}</p>
-        <p><strong>Latitude:</strong> ${lat}</p>
-        <p><strong>Longitude:</strong> ${lon}</p>
-      `;
-    } else {
-      content.innerHTML = `
-        <h2 style="color: red;">❌ Missing GPS data in URL</h2>
-        <p>Please provide <code>?lat=...&lon=...&name=...</code> in the URL.</p>
-      `;
-    }
-  </script>
-</body>
+        if (lat && lon) {
+          const scene = document.querySelector("a-scene");
+          const entity = document.createElement("a-entity");
+          entity.setAttribute("gps-entity-place", `latitude: ${lat}; longitude: ${lon}`);
+          entity.setAttribute("look-at", "[gps-camera]");
+          entity.setAttribute("text", `value: 📍 ${name}; color: red; align: center`);
+          entity.setAttribute("scale", "20 20 20");
+          scene.appendChild(entity);
+        } else {
+          document.body.innerHTML = "<h2>❌ Missing GPS data in URL</h2>";
+        }
+      </script>
+    </a-scene>
+  </body>
 </html>
