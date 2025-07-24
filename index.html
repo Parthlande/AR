@@ -5,31 +5,32 @@
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/jeromeetienne/AR.js/2.2.1/aframe/build/aframe-ar.js"></script>
   </head>
-  <body style="margin: 0; overflow: hidden">
+  <body style="margin: 0; overflow: hidden;">
     <a-scene
       vr-mode-ui="enabled: false"
       embedded
-      arjs="sourceType: webcam; debugUIEnabled: false; gpsMinAccuracy: 100"
+      arjs="sourceType: webcam; debugUIEnabled: false;"
     >
       <a-camera gps-camera rotation-reader></a-camera>
 
       <script>
-        // Parse URL parameters
+        // Get values from the URL
         const urlParams = new URLSearchParams(window.location.search);
         const lat = parseFloat(urlParams.get("lat"));
         const lon = parseFloat(urlParams.get("lon"));
-        const name = urlParams.get("name") || "Place";
+        const name = urlParams.get("name") || "Unknown Place";
 
-        if (lat && lon) {
-          const scene = document.querySelector("a-scene");
-          const entity = document.createElement("a-entity");
-          entity.setAttribute("gps-entity-place", `latitude: ${lat}; longitude: ${lon}`);
-          entity.setAttribute("look-at", "[gps-camera]");
-          entity.setAttribute("text", `value: 📍 ${name}; color: red; align: center`);
-          entity.setAttribute("scale", "20 20 20");
-          scene.appendChild(entity);
+        if (!isNaN(lat) && !isNaN(lon)) {
+          const marker = document.createElement("a-entity");
+          marker.setAttribute("gps-entity-place", `latitude: ${lat}; longitude: ${lon}`);
+          marker.setAttribute("text", `value: 📍 ${name}; color: red; align: center`);
+          marker.setAttribute("look-at", "[gps-camera]");
+          marker.setAttribute("scale", "20 20 20");
+          document.querySelector("a-scene").appendChild(marker);
         } else {
-          document.body.innerHTML = "<h2>❌ Missing GPS data in URL</h2>";
+          const error = document.createElement("div");
+          error.innerHTML = "<h2>❌ Missing or invalid GPS data in URL</h2>";
+          document.body.appendChild(error);
         }
       </script>
     </a-scene>
