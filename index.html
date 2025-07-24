@@ -1,68 +1,55 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>AR Tourist View</title>
-    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/ar.js@3.3.2/aframe/build/aframe-ar.min.js"></script>
-    <style>
-      body, html {
-        margin: 0;
-        padding: 0;
-        overflow: hidden;
-      }
-      #loading {
-        position: absolute;
-        top: 10px;
-        left: 10px;
-        background: rgba(0, 0, 0, 0.6);
-        color: white;
-        padding: 10px;
-        font-size: 16px;
-        z-index: 999;
-        border-radius: 6px;
-      }
-    </style>
-  </head>
-  <body>
-    <div id="loading">📍 Loading AR Location...</div>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>AR Tourist View</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 2rem;
+      background-color: #f5f5f5;
+      color: #333;
+    }
+    .card {
+      background: #fff;
+      padding: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      max-width: 500px;
+      margin: auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="card" id="content">
+    <h2>🔍 Loading AR Info...</h2>
+  </div>
 
-    <a-scene
-      embedded
-      arjs="sourceType: webcam; gpsMinAccuracy: 100; debugUIEnabled: false"
-      vr-mode-ui="enabled: false"
-    >
-      <a-camera gps-camera rotation-reader></a-camera>
-      <a-entity id="marker"></a-entity>
-    </a-scene>
+  <script>
+    function getQueryParam(param) {
+      const params = new URLSearchParams(window.location.search);
+      return params.get(param);
+    }
 
-    <script>
-      // Extract query parameters
-      function getQueryParam(key) {
-        const urlParams = new URLSearchParams(window.location.search);
-        return urlParams.get(key);
-      }
+    const lat = getQueryParam('lat');
+    const lon = getQueryParam('lon');
+    const name = getQueryParam('name');
 
-      const lat = parseFloat(getQueryParam('lat'));
-      const lon = parseFloat(getQueryParam('lon'));
-      const name = decodeURIComponent(getQueryParam('name') || 'Unknown Place');
+    const content = document.getElementById('content');
 
-      if (lat && lon) {
-        const marker = document.getElementById("marker");
-
-        marker.setAttribute("gps-entity-place", `latitude: ${lat}; longitude: ${lon};`);
-        marker.setAttribute("look-at", "[gps-camera]");
-
-        const text = document.createElement("a-text");
-        text.setAttribute("value", name);
-        text.setAttribute("scale", "20 20 20");
-        text.setAttribute("color", "#FF5722");
-        text.setAttribute("align", "center");
-
-        marker.appendChild(text);
-        document.getElementById("loading").style.display = "none";
-      } else {
-        document.getElementById("loading").innerText = "❌ Missing GPS data in URL";
-      }
-    </script>
-  </body>
+    if (lat && lon && name) {
+      content.innerHTML = `
+        <h2>📍 Location Details</h2>
+        <p><strong>Place:</strong> ${decodeURIComponent(name)}</p>
+        <p><strong>Latitude:</strong> ${lat}</p>
+        <p><strong>Longitude:</strong> ${lon}</p>
+      `;
+    } else {
+      content.innerHTML = `
+        <h2 style="color: red;">❌ Missing GPS data in URL</h2>
+        <p>Please provide <code>?lat=...&lon=...&name=...</code> in the URL.</p>
+      `;
+    }
+  </script>
+</body>
 </html>
