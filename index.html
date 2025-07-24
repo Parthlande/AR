@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>AR Tourist View</title>
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ar.js@3.3.2/aframe/build/aframe-ar.min.js"></script>
+    <style>
+      body, html { margin: 0; padding: 0; overflow: hidden; }
+      #loading {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background: rgba(0, 0, 0, 0.6);
+        color: white;
+        padding: 10px;
+        font-size: 16px;
+        z-index: 999;
+        border-radius: 6px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="loading">📍 Loading AR Location...</div>
+
+    <a-scene
+      embedded
+      arjs="sourceType: webcam; gpsMinAccuracy: 100; debugUIEnabled: false"
+      vr-mode-ui="enabled: false"
+    >
+      <a-camera gps-camera rotation-reader></a-camera>
+
+      <!-- Placeholder for dynamic marker -->
+      <a-entity id="marker"></a-entity>
+    </a-scene>
+
+    <script>
+      // Extract URL parameters
+      function getQueryParam(key) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(key);
+      }
+
+      const lat = parseFloat(getQueryParam('lat'));
+      const lon = parseFloat(getQueryParam('lon'));
+      const name = decodeURIComponent(getQueryParam('name') || 'Unknown Place');
+
+      if (lat && lon) {
+        const marker = document.getElementById("marker");
+        marker.setAttribute("gps-entity-place", `latitude: ${lat}; longitude: ${lon};`);
+        marker.setAttribute("look-at", "[gps-camera]");
+        marker.innerHTML = `
+          <a-text
+            value="${name}"
+            scale="20 20 20"
+            color="#FF5722"
+            align="center">
+          </a-text>
+        `;
+        document.getElementById("loading").style.display = "none";
+      } else {
+        document.getElementById("loading").innerText = "❌ Missing GPS data in URL";
+      }
+    </script>
+  </body>
+</html>
