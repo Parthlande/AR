@@ -5,7 +5,11 @@
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/ar.js@3.3.2/aframe/build/aframe-ar.min.js"></script>
     <style>
-      body, html { margin: 0; padding: 0; overflow: hidden; }
+      body, html {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+      }
       #loading {
         position: absolute;
         top: 10px;
@@ -28,13 +32,11 @@
       vr-mode-ui="enabled: false"
     >
       <a-camera gps-camera rotation-reader></a-camera>
-
-      <!-- Placeholder for dynamic marker -->
       <a-entity id="marker"></a-entity>
     </a-scene>
 
     <script>
-      // Extract URL parameters
+      // Extract query parameters
       function getQueryParam(key) {
         const urlParams = new URLSearchParams(window.location.search);
         return urlParams.get(key);
@@ -46,16 +48,17 @@
 
       if (lat && lon) {
         const marker = document.getElementById("marker");
+
         marker.setAttribute("gps-entity-place", `latitude: ${lat}; longitude: ${lon};`);
         marker.setAttribute("look-at", "[gps-camera]");
-        marker.innerHTML = `
-          <a-text
-            value="${name}"
-            scale="20 20 20"
-            color="#FF5722"
-            align="center">
-          </a-text>
-        `;
+
+        const text = document.createElement("a-text");
+        text.setAttribute("value", name);
+        text.setAttribute("scale", "20 20 20");
+        text.setAttribute("color", "#FF5722");
+        text.setAttribute("align", "center");
+
+        marker.appendChild(text);
         document.getElementById("loading").style.display = "none";
       } else {
         document.getElementById("loading").innerText = "❌ Missing GPS data in URL";
